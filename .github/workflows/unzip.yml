@@ -1,0 +1,25 @@
+name: unzip-project
+on:
+  push:
+    paths:
+      - 'world-business-20.zip'
+permissions:
+  contents: write
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip and flatten
+        run: |
+          unzip -o world-business-20.zip -d tmp_extract
+          shopt -s dotglob
+          mv tmp_extract/world-business-20/* .
+          rm -rf tmp_extract world-business-20.zip
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Extract project files" || echo "nothing to commit"
+          git push
